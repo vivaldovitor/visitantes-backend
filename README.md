@@ -17,33 +17,48 @@ Este projeto visa melhorar e otimizar o processo de registro dos visitantes de u
 ## Como Rodar o Projeto
 
 1. **Clone o Repositório**:
-   ```bash
-   git clone https://github.com/seu_usuario/projeto-visitantes.git
+   - Copie e cole no terminal para clonar o projeto
+   ```
+   git clone https://github.com/vivaldovitor/projeto-visitantes.git
+   ```
+   - Abra o projeto
+   ```
    cd projeto-visitantes
+   ```
    
 2. **Crie um Ambiente Virtual (opcional, mas recomendado):**
-   ```bash
-   python -m venv venv
-
+   - Ubunto
+   ```
+   virtualenv venv
+   ```
+   - Linux
+   ```
+   source venv/bin/activate
+   ```
+   - Windows
+   ```
+   venv/Scripts/activate
+   ```
 3. **Instale as dependências:**
-   ```bash
+   - Para instalar as dependências e os arquivos que estão no arquivo requirements.txt, execute:
+   ```
    pip install -r requirements.txt
-
+   ```
 4. **Inicialize o Banco de Dados:**
    - Inicializar migrações
-   ```bash
+   ```
    flask db init
+   ```
+   - Realiza uma nova migração de acordo com as mudanças feitas
+   ```
    flask db migrate -m "Migração inicial"
+   ```
+   - Adiciona a migração ao banco de dados
+   ```
    flask db upgrade
+   ```
 
 5. **Rodar a aplicação:**
-   ```bash
+   ```
    flask run
-
-
-
-**Dicas:**
-- Ao formatar como um bloco de código, use três crases para iniciar e terminar o bloco, e escreva `bash` logo após as primeiras três crases para indicar que é código de terminal.
-- Isso não só melhora a legibilidade, mas também permite que os usuários copiem facilmente os comandos para o terminal.
-
-Se você precisar de mais assistência, é só avisar!
+   ```
