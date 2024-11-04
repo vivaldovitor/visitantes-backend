@@ -9,8 +9,8 @@ api = Api()
 api.add_resource(IndexResource, '/')
 
 # Visitas
-api.add_resource(VisitasResource, '/visitas')
 api.add_resource(VisitaResource, '/visitas/<int:id>')
+api.add_resource(VisitasResource, '/visitas', '/visitas/<string:data>')
 
 # Visitantes
 api.add_resource(VisitantesResource, '/visitantes')

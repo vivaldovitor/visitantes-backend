@@ -15,9 +15,17 @@ class VisitasResource(Resource):
         self.parse.add_argument('data', type=str, required=True, help='Data é obrigatória e deve estar no formato YYYY-MM-DD')
         self.parse.add_argument('visitantes', type=list, location='json', help='Lista de visitantes deve ser uma lista de objetos JSON')
 
-    def get(self):
+    def get(self, data=None):
         try:
-            visitas = Visitas.query.all()
+            if data:
+                try:    
+                    data_formatada = datetime.strptime(data, '%Y-%m-%d').date()
+                except ValueError:
+                    return {'message': 'Formato de data inválido. Use YYYY-MM-DD'}, 400
+                visitas = Visitas.query.filter_by(data=data_formatada).all()
+            else:
+                visitas = Visitas.query.all()
+            
             visitas_dict = [visita.to_dict() for visita in visitas]
             return {'visitas': marshal(visitas_dict, visitasFields)}, 200
         except Exception as e:
