@@ -23,7 +23,7 @@ Este projeto visa melhorar e otimizar o processo de registro dos visitantes de u
    
 2. **Crie um Ambiente Virtual (opcional, mas recomendado):**
    ```bash
-   python -m venv venv
+   python -m venv venv```
    source venv/bin/activate  # Linux ou macOS
    venv\Scripts\activate     # Windows
 
@@ -31,22 +31,12 @@ Este projeto visa melhorar e otimizar o processo de registro dos visitantes de u
    ```bash
    pip install -r requirements.txt
 
-4. **Configure as Variáveis de Ambiente:**
-   FLASK_APP=app.py
-   FLASK_ENV=development
-   DATABASE_URL=sqlite:///site.db  # ou a URL do seu banco de dados
-
-5. **Inicialize o Banco de Dados:**
+4. **Inicialize o Banco de Dados:**
    ```bash
    flask db init
    flask db migrate
    flask db upgrade
 
-6. **Rodar a aplicação:**
+5. **Rodar a aplicação:**
    ```bash
    flask run
-
-7. **Acesse a API:**
-   Abra seu navegador e acesse http://127.0.0.1:5000 para interagir com a API.
-
-
