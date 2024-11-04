@@ -4,10 +4,9 @@ from models.Visitas import Visitas, visitasFields
 from models.Visitantes import Visitantes
 from helpers.database import db
 from sqlalchemy.exc import IntegrityError
-import logging
+from helpers.logging.logger_config import get_logger
 
-# Configurando o logger
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 class VisitasResource(Resource):
     def __init__(self):
@@ -27,6 +26,7 @@ class VisitasResource(Resource):
                 visitas = Visitas.query.all()
             
             visitas_dict = [visita.to_dict() for visita in visitas]
+            logger.info("Consulta realizada com sucesso!")
             return {'visitas': marshal(visitas_dict, visitasFields)}, 200
         except Exception as e:
             logger.error(f'Erro ao buscar visitas: {str(e)}')
@@ -99,6 +99,7 @@ class VisitaResource(Resource):
         visita = Visitas.query.get(id)
         if not visita:
             return {'message': 'Visita não encontrada'}, 404
+        logger.info("Consulta realizada com sucesso!")
         return {'visita': marshal(visita, visitasFields)}, 200
     
     def delete(self, id):

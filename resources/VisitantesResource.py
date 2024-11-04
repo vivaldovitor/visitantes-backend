@@ -2,6 +2,9 @@ from flask_restful import Resource, marshal, reqparse
 from models.Visitantes import Visitantes, visitantesFields
 from helpers.database import db
 from sqlalchemy.exc import IntegrityError
+from helpers.logging.logger_config import get_logger
+
+logger = get_logger(__name__)
 
 class VisitantesResource(Resource):
     def __init__(self):
@@ -13,7 +16,7 @@ class VisitantesResource(Resource):
 
     def get(self):
         visitantes = Visitantes.query.all()
-        print(f"Retornando {visitantes} visitantes.")
+        logger.info("Consulta realizada com sucesso!")
         return {'visitantes': marshal(visitantes, visitantesFields)}, 200
     
     def post(self):
@@ -28,6 +31,7 @@ class VisitantesResource(Resource):
         db.session.add(visitante)
         try:
             db.session.commit()
+            logger.info("Visitante criado com sucesso!")
             return marshal(visitante, visitantesFields), 201
         except IntegrityError as e:
             db.session.rollback()
@@ -49,6 +53,7 @@ class VisitanteResource(Resource):
         visitante = Visitantes.query.get(id)
         if not visitante:
             return {'message': 'Visitante não encontrado'}, 404
+        logger.info("Consulta realizada com sucesso!")
         return {'visitante': marshal(visitante, visitantesFields)}, 200
 
     def put(self, id):
@@ -68,6 +73,7 @@ class VisitanteResource(Resource):
 
         try:
             db.session.commit()
+            logger.info("Visitante atualizado com sucesso!")
             return marshal(visitante, visitantesFields), 200
         except IntegrityError:
             db.session.rollback()

@@ -3,3 +3,4 @@ __pycache__/
 alembic.ini
 .env
 config.py
+*.log
