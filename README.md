@@ -30,11 +30,20 @@ Este projeto visa melhorar e otimizar o processo de registro dos visitantes de u
    pip install -r requirements.txt
 
 4. **Inicialize o Banco de Dados:**
+   - Inicializar migrações
    ```bash
    flask db init
-   flask db migrate
+   flask db migrate -m "Migração inicial"
    flask db upgrade
 
 5. **Rodar a aplicação:**
    ```bash
    flask run
+
+
+
+**Dicas:**
+- Ao formatar como um bloco de código, use três crases para iniciar e terminar o bloco, e escreva `bash` logo após as primeiras três crases para indicar que é código de terminal.
+- Isso não só melhora a legibilidade, mas também permite que os usuários copiem facilmente os comandos para o terminal.
+
+Se você precisar de mais assistência, é só avisar!
