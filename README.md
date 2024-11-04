@@ -23,9 +23,7 @@ Este projeto visa melhorar e otimizar o processo de registro dos visitantes de u
    
 2. **Crie um Ambiente Virtual (opcional, mas recomendado):**
    ```bash
-   python -m venv venv```
-   source venv/bin/activate  # Linux ou macOS
-   venv\Scripts\activate     # Windows
+   python -m venv venv
 
 3. **Instale as dependências:**
    ```bash
