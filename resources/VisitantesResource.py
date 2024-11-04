@@ -1,104 +1,90 @@
-from flask_restful import Resource, reqparse, marshal
+from flask_restful import Resource, marshal, reqparse
 from models.Visitantes import Visitantes, visitantesFields
 from helpers.database import db
 from sqlalchemy.exc import IntegrityError
-from datetime import datetime
-
-parse = reqparse.RequestParser()
-parse.add_argument('nome', type=str, help='Problema no nome do visitante')
-parse.add_argument('cidade', type=str, help='Problema no local de origem')
-parse.add_argument('igreja', type=str, help='Problema na igreja')
-parse.add_argument('data_visita', type=str, help='Problema na data da visita')
 
 class VisitantesResource(Resource):
+    def __init__(self):
+        self.parse = reqparse.RequestParser()
+        self.parse.add_argument('visita_id', type=int, required=True, help='ID da visita é obrigatório')
+        self.parse.add_argument('nome', type=str, required=True, help="Nome do visitante é obrigatório")
+        self.parse.add_argument('cidade', type=str, help="Cidade do visitante")
+        self.parse.add_argument('igreja', type=str, help="Igreja do visitante")
 
     def get(self):
         visitantes = Visitantes.query.all()
+        print(f"Retornando {visitantes} visitantes.")
         return {'visitantes': marshal(visitantes, visitantesFields)}, 200
     
     def post(self):
-        args = parse.parse_args()
-        nome = args['nome']
-        cidade = args['cidade']
-        igreja = args['igreja']
-        data_visita = args['data_visita']
+        args = self.parse.parse_args()
+        visitante = Visitantes(
+            visita_id=args['visita_id'],
+            nome=args['nome'],
+            cidade=args.get('cidade'),
+            igreja=args.get('igreja')
+        )
 
+        db.session.add(visitante)
         try:
-            data_visita = datetime.strptime(data_visita, '%Y-%m-%d')
-        except ValueError:
-            return {'message': 'Formato de data de visita inválido. Use YYYY-MM-DD'}, 400
-        
-        try:
-            visitante = Visitantes(
-                nome=nome,
-                cidade=cidade,
-                igreja=igreja,
-                data_visita=data_visita
-            )
-        
-            db.session.add(visitante)
             db.session.commit()
             return marshal(visitante, visitantesFields), 201
-        
-        except IntegrityError:
+        except IntegrityError as e:
             db.session.rollback()
-            return {'message': 'Erro de integridade: problema no cadastro'}, 400
+            return {'message': 'Erro de integridade ao criar o visitante'}, 400 
         except Exception as e:
+            db.session.rollback()
             return {'message': f'Ocorreu um erro: {str(e)}'}, 500
 
 
 class VisitanteResource(Resource):
+    def __init__(self):
+        self.parse = reqparse.RequestParser()
+        self.parse.add_argument('visita_id', type=int, help='ID da visita')
+        self.parse.add_argument('nome', type=str, help="Nome do visitante")
+        self.parse.add_argument('cidade', type=str, help="Cidade do visitante")
+        self.parse.add_argument('igreja', type=str, help="Igreja do visitante")
 
     def get(self, id):
         visitante = Visitantes.query.get(id)
         if not visitante:
-            return {'Error': 'Visitante não encontrado'}, 404
+            return {'message': 'Visitante não encontrado'}, 404
         return {'visitante': marshal(visitante, visitantesFields)}, 200
-    
+
     def put(self, id):
-        args = parse.parse_args()
+        args = self.parse.parse_args()
         visitante = Visitantes.query.get(id)
         if not visitante:
-            return {'Error': 'Visitante não encontrado'}, 404
-        
+            return {'message': 'Visitante não encontrado'}, 404
+
+        if args['visita_id'] is not None:
+            visitante.visita_id = args['visita_id']
+        if args['nome'] is not None:
+            visitante.nome = args['nome']
+        if args['cidade'] is not None:
+            visitante.cidade = args['cidade']
+        if args['igreja'] is not None:
+            visitante.igreja = args['igreja']
 
         try:
-            if args.get('nome'):
-                visitante.nome = args['nome']
-            if args.get('cidade'):
-                visitante.cidade = args['cidade']
-            if args.get('igreja'):
-                visitante.igreja = args['igreja']
-            else:
-                visitante.igreja = 'não crente'
-
-            if args.get('data_visita'):
-                try:
-                    visitante.data_visita = datetime.strptime(args['data_visita'], '%Y-%m-%d')
-                
-                except ValueError:
-                    return {'message': 'Formato de data de visita inválido. Use YYYY-MM-DD'}, 400
-                
             db.session.commit()
             return marshal(visitante, visitantesFields), 200
         except IntegrityError:
             db.session.rollback()
-            return {'message': 'Erro de integridade: problema no cadastro.'}, 400
-        
-        except Exception as e:
-            return {'message': f'Ocorreu um erro: {str(e)}'}, 500
-        
-    def delete(self, id):
-        visitante = Visitantes.query.get(id)
-        if not visitante:
-            return {'message': 'Visitante não encontrado.'}, 404
-        
-        try:
-            db.session.delete(visitante)
-            db.session.commit()
-            return {'message': 'Visitante deletado com sucesso!'}, 200
-        
+            return {'message': 'Erro de integridade ao atualizar o visitante'}, 400
         except Exception as e:
             db.session.rollback()
             return {'message': f'Ocorreu um erro: {str(e)}'}, 500
 
+    def delete(self, id):
+        visitante = Visitantes.query.get(id)
+        if not visitante:
+            return {'message': 'Visitante não encontrado'}, 404
+
+        try:
+            db.session.delete(visitante)
+            db.session.commit()
+            return {'message': 'Visitante deletado com sucesso'}, 200
+        except Exception as e:
+            db.session.rollback()
+            return {'message': f'Ocorreu um erro: {str(e)}'}, 500
