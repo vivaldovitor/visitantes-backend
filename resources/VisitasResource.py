@@ -102,13 +102,15 @@ class VisitaResource(Resource):
         return {'visita': marshal(visita, visitasFields)}, 200
     
     def delete(self, id):
-        visita = Visitas.query.get(id)
-        if not visita:
-            return {'message': 'Visita não encontrada'}, 404
         try:
+            visita = Visitas.query.get(id)
+            if not visita:
+                return {'message': 'Visita não encontrada'}, 404
+            
             db.session.delete(visita)
             db.session.commit()
-            return {'message': 'Visita deletada com sucesso'}, 200
+
+            return {'message': 'Visita e visitantes associados foram deletados com sucesso'}, 200
         except Exception as e:
             db.session.rollback()
             return {'message': f'Ocorreu um erro: {str(e)}'}, 500

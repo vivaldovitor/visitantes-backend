@@ -18,7 +18,7 @@ class Visitas(db.Model):
     visita_id = db.Column(db.Integer, primary_key=True)
     data = db.Column(db.DateTime, nullable=False, unique=True)  
 
-    visitantes = db.relationship('Visitantes', backref='visita', lazy=True)
+    visitantes = db.relationship('Visitantes', backref='visita', lazy=True, cascade="all, delete")
 
     def to_dict(self):
         return {
