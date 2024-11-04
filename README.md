@@ -31,7 +31,7 @@ Este projeto visa melhorar e otimizar o processo de registro dos visitantes de u
    ```bash
    pip install -r requirements.txt
 
-4. **Configure as Variáveis de Ambiente: Crie um arquivo .env na raiz do projeto e adicione as seguintes linhas:**
+4. **Configure as Variáveis de Ambiente:**
    FLASK_APP=app.py
    FLASK_ENV=development
    DATABASE_URL=sqlite:///site.db  # ou a URL do seu banco de dados
