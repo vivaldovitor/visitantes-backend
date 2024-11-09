@@ -95,6 +95,11 @@ class VisitasResource(Resource):
             
 
 class VisitaResource(Resource):
+    def __init__(self):
+        self.parse = reqparse.RequestParser()
+        self.parse.add_argument('data', type=str, required=True, help='Data é obrigatória e deve estar no formato YYYY-MM-DD')
+        self.parse.add_argument('visitantes', type=list, location='json', help='Lista de visitantes deve ser uma lista de objetos JSON')
+
     def get(self, id):
         visita = Visitas.query.get(id)
         if not visita:
@@ -102,6 +107,61 @@ class VisitaResource(Resource):
         logger.info("Consulta realizada com sucesso!")
         return {'visita': marshal(visita, visitasFields)}, 200
     
+    def put(self, id):
+        args = self.parse.parse_args()
+        visita = Visitas.query.get(id)
+
+        if not visita:
+            return {'message': 'Visita não encontrada'}, 404
+
+        # Atualizando a data da visita
+        if args['data']:
+            try:
+                visita.data = datetime.strptime(args['data'], '%Y-%m-%d')
+            except ValueError:
+                return {'message': 'Formato de data inválido. Use YYYY-MM-DD'}, 400
+
+        # Atualizando ou criando novos visitantes
+        if args['visitantes']:
+            visitantes_data = args['visitantes']
+            for visitantes_info in visitantes_data:
+                nome = visitantes_info.get('nome')
+                cidade = visitantes_info.get('cidade')
+                igreja = visitantes_info.get('igreja')
+
+                if nome:
+                    # Tentando encontrar o visitante já existente pela visita_id e nome
+                    visitante = Visitantes.query.filter_by(visita_id=visita.visita_id, nome=nome).first()
+                    
+                    if visitante:
+                        # Visitante encontrado, atualizar informações
+                        visitante.cidade = cidade
+                        visitante.igreja = igreja
+                        logger.info(f'Visitante {nome} atualizado com sucesso.')
+                    else:
+                        # Visitante não encontrado, criar novo
+                        visitante = Visitantes(
+                            nome=nome,
+                            cidade=cidade,
+                            igreja=igreja,
+                            visita_id=visita.visita_id
+                        )
+                        db.session.add(visitante)
+                        logger.info(f'Visitante {nome} adicionado com sucesso.')
+
+        try:
+            db.session.commit()
+            logger.info(f'Visita e/ou visitantes atualizados com sucesso! (ID: {id}).')
+            return marshal(visita, visitasFields), 200
+        except IntegrityError as e:
+            db.session.rollback()
+            logger.error(f'Erro de integridade ao atualizar a visita ou visitantes: {str(e)}')
+            return {'message': f'Erro de integridade ao atualizar o visitante: {str(e)}'}, 400
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f'Ocorreu um erro ao atualizar visita: {str(e)}')
+            return {'message': f'Ocorreu um erro: {str(e)}'}, 500
+
     def delete(self, id):
         try:
             visita = Visitas.query.get(id)
